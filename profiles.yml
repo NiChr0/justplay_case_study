@@ -1,0 +1,7 @@
+justplay_analytics:
+  outputs:
+    dev:
+      type: duckdb
+      path: '/Users/nchronaios/Documents/projects.nosync/justplay/justplay.duckdb'
+      threads: 4
+  target: dev
