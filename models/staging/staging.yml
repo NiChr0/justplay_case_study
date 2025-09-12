@@ -1,0 +1,73 @@
+version: 2
+
+models:
+  - name: stg_raw__ad_spend
+    description: Staging model for ad spend data with basic cleaning
+    columns:
+      - name: report_date
+        description: Date of the report
+        data_tests:
+          - not_null
+      - name: country_code
+        description: Country code where ad was served
+        data_tests:
+          - not_null
+      - name: os_name
+        description: Operating system (android/ios)
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['android', 'ios']
+      - name: acquisition_channel
+        description: User acquisition channel/network
+        data_tests:
+          - not_null
+      - name: campaign_name
+        description: Campaign name
+        data_tests:
+          - not_null
+      - name: campaign_creative
+        description: Creative/ad name
+        data_tests:
+          - not_null
+      - name: ad_spend_usd
+        description: Amount spent on ads in USD
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: network_clicks
+        description: Clicks reported by network
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: network_impressions
+        description: Impressions reported by network
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: network_installs
+        description: Installs reported by network
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: adjust_installs
+        description: Installs attributed by Adjust
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
