@@ -1,3 +1,8 @@
+with source as(
+    select *
+    from {{ ref('ad_spent_installs_raw') }}
+)
+
 
 select
     report_day::date as report_date,
@@ -13,4 +18,5 @@ select
     coalesce(installs,0) as adjust_installs
     --coalesce(network_installs_diff,0) as network_installs_diff
 from 
-    {{ ref('ad_spent_installs_raw') }}
+    source
+{{ dbt_utils.group_by(n=11) }}
