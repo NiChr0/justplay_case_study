@@ -63,7 +63,7 @@ models:
         description: "Unique Adjust attribution identifier"
         tests:
           - not_null
-      - name: install_timestamp
+      - name: installed_at
         description: "When the app was installed"
         tests:
           - not_null
@@ -105,7 +105,7 @@ models:
         description: "Internal JustPlay user identifier"
         tests:
           - not_null
-      - name: revenue_timestamp
+      - name: created_at
         description: "When revenue was generated"
         tests:
           - not_null
