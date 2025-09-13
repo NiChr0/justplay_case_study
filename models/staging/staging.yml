@@ -71,3 +71,85 @@ models:
               arguments:
                 min_value: 0
                 inclusive: true
+
+  - name: stg_installs
+    description: "Cleaned install events with standardized attribution data"
+    columns:
+      - name: user_id
+        description: "Internal JustPlay user identifier"
+        tests:
+          - not_null
+      - name: adjust_id
+        description: "Unique Adjust attribution identifier"
+        tests:
+          - not_null
+          - unique
+      - name: install_timestamp
+        description: "When the app was installed"
+        tests:
+          - not_null
+      - name: country_code
+        description: "User's attributed country code"
+      - name: os_name
+        description: "Operating system (android/ios)"
+      - name: acquisition_channel
+        description: "Ad network/channel that drove the install"
+      - name: campaign_name
+        description: "Marketing campaign name"
+      - name: campaign_creative
+        description: "Specific ad creative shown"
+      - name: ad_group_name
+        description: "Ad group within campaign"
+      - name: tracker_name
+        description: "Adjust tracker link token"
+      - name: device
+        description: "Device model"
+      - name: os_version
+        description: "Operating system version"
+      - name: limit_ad_tracking
+        description: "Whether user limited ad tracking"
+      - name: idfa
+        description: "iOS advertising identifier"
+      - name: idfv
+        description: "iOS vendor identifier"
+      - name: google_ad_id
+        description: "Android advertising identifier"
+
+  - name: stg_revenue
+    description: "Cleaned ad revenue events from user gameplay"
+    columns:
+      - name: event_id
+        description: "Unique revenue event identifier"
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: "Internal JustPlay user identifier"
+        tests:
+          - not_null
+      - name: revenue_timestamp
+        description: "When revenue was generated"
+        tests:
+          - not_null
+      - name: country_code
+        description: "Country where revenue was generated"
+      - name: platform
+        description: "Platform generating revenue"
+      - name: revenue_usd
+        description: "Revenue amount in USD"
+        tests:
+          - not_null
+      - name: revenue_source
+        description: "Third-party monetization tool"
+      - name: ad_network
+        description: "Network providing the ad (AppLovin only)"
+      - name: ad_unit_format
+        description: "Ad format (banner, rewarded video, interstitial)"
+      - name: ad_unit_name
+        description: "AppLovin MAX ad unit name"
+      - name: package_name
+        description: "Game package where revenue occurred"
+      - name: device_id
+        description: "Device identifier (AppSetId/IDFV)"
+      - name: advertising_id
+        description: "Advertising identifier (GAID/IDFA)"

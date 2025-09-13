@@ -1,9 +1,9 @@
 with source as(
     select *
     from {{ ref('ad_spent_installs_raw') }}
-)
+),
 
-
+renamed as(
 select
     report_day::date as report_date,
     trim(lower(country_code)) as country_code,
@@ -19,4 +19,7 @@ select
     --coalesce(network_installs_diff,0) as network_installs_diff
 from 
     source
-{{ dbt_utils.group_by(n=11) }}
+)
+
+select * 
+from renamed
