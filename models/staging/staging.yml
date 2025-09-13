@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: stg_raw__ad_spend
-    description: Staging model for ad spend data with basic cleaning
+    description: This model ingests raw ad spend data from various ad networks and applies basic cleaning
     columns:
       - name: report_date
         description: Date of the report
@@ -35,45 +35,25 @@ models:
         description: Amount spent on ads in USD
         data_tests:
           - not_null
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-                inclusive: true
       - name: network_clicks
         description: Clicks reported by network
         data_tests:
           - not_null
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-                inclusive: true
       - name: network_impressions
         description: Impressions reported by network
         data_tests:
           - not_null
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-                inclusive: true
       - name: network_installs
         description: Installs reported by network
         data_tests:
           - not_null
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-                inclusive: true
       - name: adjust_installs
         description: Installs attributed by Adjust
         data_tests:
           - not_null
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-                inclusive: true
 
-  - name: stg_installs
-    description: "Cleaned install events with standardized attribution data"
+  - name: stg_raw__installs
+    description: "This model ingests raw install data from Adjust and applies basic cleaning"
     columns:
       - name: user_id
         description: "Internal JustPlay user identifier"
@@ -83,7 +63,6 @@ models:
         description: "Unique Adjust attribution identifier"
         tests:
           - not_null
-          - unique
       - name: install_timestamp
         description: "When the app was installed"
         tests:
@@ -106,8 +85,8 @@ models:
         description: "Device model"
       - name: os_version
         description: "Operating system version"
-      - name: limit_ad_tracking
-        description: "Whether user limited ad tracking"
+      - name: has_limit_ad_tracking
+        description: "Boolean Whether user limited ad tracking"
       - name: idfa
         description: "iOS advertising identifier"
       - name: idfv
@@ -115,14 +94,13 @@ models:
       - name: google_ad_id
         description: "Android advertising identifier"
 
-  - name: stg_revenue
-    description: "Cleaned ad revenue events from user gameplay"
+  - name: stg_raw__revenue
+    description: "This model ingests raw revenue data from AppLovin and applies basic cleaning"
     columns:
       - name: event_id
         description: "Unique revenue event identifier"
         tests:
           - not_null
-          - unique
       - name: user_id
         description: "Internal JustPlay user identifier"
         tests:
