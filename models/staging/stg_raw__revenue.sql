@@ -7,10 +7,10 @@ renamed as(
 select
     eventId::varchar as event_id,
     userId::varchar as user_id,
-    createdAt::timestamp as revenue_timestamp,
+    createdAt::timestamp as created_at,
     trim(lower(countryCode)) as country_code,
     trim(lower(platform)) as platform,
-    coalesce(amount, 0) as revenue_usd,
+    amount as revenue_usd,
     trim(lower(source)) as revenue_source,
     trim(lower(network)) as ad_network,
     trim(lower(adUnitFormat)) as ad_unit_format,

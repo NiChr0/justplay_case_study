@@ -7,7 +7,7 @@ renamed as(
 select
     userId::varchar as user_id,
     adjustId::varchar as adjust_id,
-    installedAt::timestamp as install_timestamp,
+    installedAt::timestamp as installed_at,
     trim(lower(countryCode)) as country_code,
     trim(lower(os_name)) as os_name,
     trim(lower(channel)) as acquisition_channel,
@@ -17,7 +17,7 @@ select
     trim(lower(trackerName)) as tracker_name,
     device,
     osVersion as os_version,
-    limitAdTracking::boolean as limit_ad_tracking,
+    limitAdTracking::boolean as has_limit_ad_tracking,
     idfa,
     idfv,
     googleAdId as google_ad_id
