@@ -13,8 +13,8 @@ with source as(
 transformed as(
 
     select
-        user_id,
-        adjust_id,
+        justplay_user_id,
+        adjust_user_id,
         installed_at,
         country_code,
         os_name,
@@ -23,7 +23,7 @@ transformed as(
         campaign_creative,
         ad_group_name,
         tracker_name,
-        device,
+        device_name,
         os_version,
         has_limit_ad_tracking,
         idfa,
@@ -34,6 +34,6 @@ transformed as(
 )
 
 select 
-    {{dbt_utils.generate_surrogate_key(['user_id', 'adjust_id', 'installed_at'])}} as install_id,
+    {{dbt_utils.generate_surrogate_key(['justplay_user_id', 'adjust_user_id', 'installed_at'])}} as install_id,
     *
 from transformed

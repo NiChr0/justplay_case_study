@@ -6,66 +6,66 @@ models:
     columns:
       - name: report_date
         description: Date of the report
-        data_tests:
+        data_data_tests:
           - not_null
       - name: country_code
         description: Country code where ad was served
-        data_tests:
+        data_data_tests:
           - not_null
       - name: os_name
         description: Operating system (android/ios)
-        data_tests:
+        data_data_tests:
           - not_null
           - accepted_values:
               arguments:
                 values: ['android', 'ios']
       - name: acquisition_channel
         description: User acquisition channel/network
-        data_tests:
+        data_data_tests:
           - not_null
       - name: campaign_name
         description: Campaign name
-        data_tests:
+        data_data_tests:
           - not_null
       - name: campaign_creative
         description: Creative/ad name
-        data_tests:
+        data_data_tests:
           - not_null
       - name: ad_spend_usd
         description: Amount spent on ads in USD
-        data_tests:
+        data_data_tests:
           - not_null
       - name: network_clicks
         description: Clicks reported by network
-        data_tests:
+        data_data_tests:
           - not_null
       - name: network_impressions
         description: Impressions reported by network
-        data_tests:
+        data_data_tests:
           - not_null
       - name: network_installs
         description: Installs reported by network
-        data_tests:
+        data_data_tests:
           - not_null
       - name: adjust_installs
         description: Installs attributed by Adjust
-        data_tests:
+        data_data_tests:
           - not_null
 
   - name: stg_raw__installs
     description: "This model ingests raw install data from Adjust and applies basic cleaning"
     columns:
-      - name: user_id
+      - name: justplay_user_id
         description: "Internal JustPlay user identifier"
-        tests:
+        data_tests:
           - not_null
-      - name: adjust_id
+      - name: adjust_user_id
         description: "Unique Adjust attribution identifier"
-        tests:
+        data_tests:
           - not_null
       - name: installed_at
         description: "When the app was installed"
-        tests:
+        data_tests:
           - not_null
       - name: country_code
         description: "User's attributed country code"
@@ -81,7 +81,7 @@ models:
         description: "Ad group within campaign"
       - name: tracker_name
         description: "Adjust tracker link token"
-      - name: device
+      - name: device_name
         description: "Device model"
       - name: os_version
         description: "Operating system version"
@@ -99,23 +99,31 @@ models:
     columns:
       - name: event_id
         description: "Unique revenue event identifier"
-        tests:
+        data_tests:
           - not_null
-      - name: user_id
+      - name: justplay_user_id
         description: "Internal JustPlay user identifier"
-        tests:
+        data_tests:
+          - not_null
+      - name: device_id
+        description: "Device identifier. For Andoird it's the AppSetid and for iOS the IDFV."
+        data_tests:
           - not_null
       - name: created_at
         description: "When revenue was generated"
-        tests:
+        data_tests:
           - not_null
       - name: country_code
         description: "Country where revenue was generated"
-      - name: platform
+      - name: os_name
         description: "Platform generating revenue"
+        data_data_tests:
+          - accepted_values:
+              arguments:
+                values: ['android', 'ios']
       - name: revenue_usd
         description: "Revenue amount in USD"
-        tests:
+        data_tests:
           - not_null
       - name: revenue_source
         description: "Third-party monetization tool"
@@ -127,7 +135,5 @@ models:
         description: "AppLovin MAX ad unit name"
       - name: package_name
         description: "Game package where revenue occurred"
-      - name: device_id
-        description: "Device identifier (AppSetId/IDFV)"
       - name: advertising_id
         description: "Advertising identifier (GAID/IDFA)"
