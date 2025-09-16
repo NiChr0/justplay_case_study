@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: daily_install_volumes
+    columns:
+      - name: daily_installs
+        data_tests:
+          - outliers_iqr:
+                multiplier: 1.5
+      - name: duplicate_installs
+        data_tests:
+          - outliers_iqr:
+                multiplier: 1.5
