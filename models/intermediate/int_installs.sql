@@ -1,17 +1,20 @@
 {{
   config(
-    materialized = 'table'
-    )
+    materialized = 'incremental',
+    unique_key = 'install_id',
+    on_schema_change = 'append'
+  )
 }}
 
 with source as(
     select *
     from {{ ref('stg_raw__installs') }}
+    {% if is_incremental() %}
+      where installed_at::date > current_date - 7
+    {% endif %}
 ),
 
-
 transformed as(
-
     select
         justplay_user_id,
         adjust_user_id,

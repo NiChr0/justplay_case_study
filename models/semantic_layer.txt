@@ -1,0 +1,478 @@
+# JustPlay Semantic Layer Configuration
+# Single source of truth for all business metrics and KPIs
+# Version: 1.0.0
+
+version: 2
+
+metrics:
+  # ==========================================
+  # EXECUTIVE METRICS
+  # ==========================================
+  
+  - name: company_roas
+    label: "Company ROAS"
+    model: ref('composite_kpis')
+    description: "Overall company Return on Ad Spend - the north star metric for profitability"
+    calculation_method: derived
+    expression: "{{ metric('total_revenue') }} / NULLIF({{ metric('total_ad_spend') }}, 0)"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+    meta:
+      owner: "Finance"
+      tier: "executive"
+      refresh_frequency: "daily"
+      business_definition: "Total revenue divided by total ad spend across all channels"
+      
+  - name: total_revenue
+    label: "Total Revenue"
+    model: ref('composite_kpis')
+    description: "Total revenue generated from all sources"
+    calculation_method: sum
+    expression: total_revenue
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "Finance"
+      tier: "executive"
+      
+  - name: total_ad_spend
+    label: "Total Ad Spend"
+    model: ref('composite_kpis')
+    description: "Total advertising spend across all channels"
+    calculation_method: sum
+    expression: total_ad_spend
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "User Acquisition"
+      tier: "executive"
+      
+  - name: net_profit
+    label: "Net Profit"
+    model: ref('composite_kpis')
+    description: "Revenue minus ad spend"
+    calculation_method: derived
+    expression: "{{ metric('total_revenue') }} - {{ metric('total_ad_spend') }}"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+    meta:
+      owner: "Finance"
+      tier: "executive"
+      alert_threshold: "< 0"
+      
+  - name: contribution_margin
+    label: "Contribution Margin %"
+    model: ref('composite_kpis')
+    description: "Profit margin after UA costs"
+    calculation_method: derived
+    expression: "({{ metric('total_revenue') }} - {{ metric('total_ad_spend') }}) / NULLIF({{ metric('total_revenue') }}, 0) * 100"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+    meta:
+      owner: "Finance"
+      tier: "executive"
+      alert_threshold: "< 20"
+
+  # ==========================================
+  # USER ACQUISITION METRICS
+  # ==========================================
+  
+  - name: total_installs
+    label: "Total Installs"
+    model: ref('composite_kpis')
+    description: "Total installs attributed by Adjust"
+    calculation_method: sum
+    expression: total_adjust_installs
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+      - campaign_creative
+    meta:
+      owner: "User Acquisition"
+      tier: "operational"
+      
+  - name: cost_per_install
+    label: "Cost Per Install (CPI)"
+    model: ref('composite_kpis')
+    description: "Average cost to acquire one user"
+    calculation_method: derived
+    expression: "{{ metric('total_ad_spend') }} / NULLIF({{ metric('total_installs') }}, 0)"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "User Acquisition"
+      tier: "operational"
+      alert_threshold: "> 5"
+      
+  - name: total_impressions
+    label: "Total Impressions"
+    model: ref('composite_kpis')
+    description: "Total ad impressions served"
+    calculation_method: sum
+    expression: total_network_impressions
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "User Acquisition"
+      tier: "operational"
+      
+  - name: total_clicks
+    label: "Total Clicks"
+    model: ref('composite_kpis')
+    description: "Total ad clicks"
+    calculation_method: sum
+    expression: total_network_clicks
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "User Acquisition"
+      tier: "operational"
+      
+  - name: click_through_rate
+    label: "Click-Through Rate (CTR)"
+    model: ref('composite_kpis')
+    description: "Percentage of impressions that result in clicks"
+    calculation_method: derived
+    expression: "{{ metric('total_clicks') }} / NULLIF({{ metric('total_impressions') }}, 0) * 100"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "User Acquisition"
+      tier: "tactical"
+      
+  - name: install_conversion_rate
+    label: "Install Conversion Rate"
+    model: ref('composite_kpis')
+    description: "Percentage of clicks that result in installs"
+    calculation_method: derived
+    expression: "{{ metric('total_installs') }} / NULLIF({{ metric('total_clicks') }}, 0) * 100"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "User Acquisition"
+      tier: "tactical"
+      
+  - name: avg_attribution_discrepancy
+    label: "Attribution Discrepancy Rate"
+    model: ref('composite_kpis')
+    description: "Average discrepancy between network and Adjust reporting"
+    calculation_method: average
+    expression: attribution_discrepancy_rate
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "Analytics"
+      tier: "operational"
+      alert_threshold: "> 0.3"
+
+  # ==========================================
+  # MONETIZATION METRICS
+  # ==========================================
+  
+  - name: revenue_per_install
+    label: "Revenue Per Install (RPI)"
+    model: ref('composite_kpis')
+    description: "Average revenue generated per install"
+    calculation_method: derived
+    expression: "{{ metric('total_revenue') }} / NULLIF({{ metric('total_installs') }}, 0)"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "Product"
+      tier: "strategic"
+      
+  - name: total_users_installed
+    label: "Total Users Installed"
+    model: ref('users__kpis')
+    description: "Count of unique users installed"
+    calculation_method: sum
+    expression: total_users_installed
+    timestamp: install_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - install_country
+      - install_platform
+      - install_channel
+    meta:
+      owner: "Product"
+      tier: "operational"
+      
+  - name: users_with_revenue
+    label: "Monetized Users"
+    model: ref('users__kpis')
+    description: "Count of users who generated revenue"
+    calculation_method: sum
+    expression: users_with_revenue
+    timestamp: install_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - install_country
+      - install_platform
+      - install_channel
+    meta:
+      owner: "Monetization"
+      tier: "operational"
+      
+  - name: monetization_rate
+    label: "Monetization Rate"
+    model: ref('users__kpis')
+    description: "Percentage of users generating revenue"
+    calculation_method: derived
+    expression: "{{ metric('users_with_revenue') }} / NULLIF({{ metric('total_users_installed') }}, 0) * 100"
+    timestamp: install_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - install_country
+      - install_platform
+      - install_channel
+    meta:
+      owner: "Monetization"
+      tier: "strategic"
+      alert_threshold: "< 10"
+      
+  - name: average_ltv
+    label: "Average LTV"
+    model: ref('dim_users')
+    description: "Average lifetime value per user"
+    calculation_method: average
+    expression: ltv
+    timestamp: first_cohort_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - first_country_code
+      - first_os_name
+      - first_acquisition_channel
+    meta:
+      owner: "Product"
+      tier: "strategic"
+      
+  - name: payer_count
+    label: "Payer Count"
+    model: ref('dim_users')
+    description: "Number of users who have generated revenue"
+    calculation_method: sum
+    expression: is_payer
+    timestamp: first_cohort_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - first_country_code
+      - first_os_name
+      - first_acquisition_channel
+    meta:
+      owner: "Monetization"
+      tier: "operational"
+      
+  - name: reinstaller_count
+    label: "Reinstaller Count"
+    model: ref('dim_users')
+    description: "Number of users who reinstalled the app"
+    calculation_method: sum
+    expression: is_reinstaller
+    timestamp: first_cohort_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - first_country_code
+      - first_os_name
+      - first_acquisition_channel
+    meta:
+      owner: "Product"
+      tier: "tactical"
+
+  # ==========================================
+  # COMPOSITE/DERIVED METRICS
+  # ==========================================
+  
+  - name: payback_period_days
+    label: "Payback Period (Days)"
+    model: ref('composite_kpis')
+    description: "Days to recover user acquisition cost at current monetization rate"
+    calculation_method: derived
+    expression: "{{ metric('cost_per_install') }} / NULLIF({{ metric('revenue_per_install') }} / 30, 0)"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+    meta:
+      owner: "Finance"
+      tier: "strategic"
+      alert_threshold: "> 90"
+      business_definition: "CPI divided by daily RPI (RPI/30)"
+      
+  - name: ltv_to_cac_ratio
+    label: "LTV:CAC Ratio"
+    model: ref('composite_kpis')
+    description: "Lifetime value to customer acquisition cost ratio"
+    calculation_method: derived
+    expression: "{{ metric('revenue_per_install') }} / NULLIF({{ metric('cost_per_install') }}, 0)"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+      - acquisition_channel
+    meta:
+      owner: "Finance"
+      tier: "strategic"
+      target_value: "> 3"
+      
+  - name: profitable_channels_count
+    label: "Profitable Channels Count"
+    model: ref('composite_kpis')
+    description: "Number of channels with ROAS >= 1.0"
+    calculation_method: count_distinct
+    expression: CASE WHEN roas >= 1.0 THEN acquisition_channel ELSE NULL END
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - country_code
+      - os_name
+    meta:
+      owner: "User Acquisition"
+      tier: "tactical"
+      
+  - name: high_quality_traffic_percentage
+    label: "High Quality Traffic %"
+    model: ref('composite_kpis')
+    description: "Percentage of traffic marked as high quality"
+    calculation_method: derived
+    expression: "SUM(CASE WHEN traffic_quality = 'high' THEN total_installs ELSE 0 END) / NULLIF({{ metric('total_installs') }}, 0) * 100"
+    timestamp: report_date
+    time_grains: [day, week, month, quarter, year]
+    dimensions:
+      - acquisition_channel
+      - campaign_name
+    meta:
+      owner: "User Acquisition"
+      tier: "tactical"
+
+# Additional metadata for governance
+meta:
+  semantic_layer_version: "1.0.0"
+  last_updated: "2024-01-15"
+  data_sources:
+    - name: "adjust"
+      description: "Mobile attribution platform"
+      refresh_frequency: "hourly"
+    - name: "applovin"
+      description: "Ad monetization platform"
+      refresh_frequency: "hourly"
+    - name: "internal"
+      description: "JustPlay backend systems"
+      refresh_frequency: "real-time"
+      
+  metric_tiers:
+    executive:
+      description: "C-level and board reporting metrics"
+      sla: "99.9% uptime"
+      certification_required: true
+    strategic:
+      description: "Department-level strategic metrics"
+      sla: "99.5% uptime"
+      certification_required: true
+    tactical:
+      description: "Team-level decision metrics"
+      sla: "99% uptime"
+      certification_required: false
+    operational:
+      description: "Daily operational metrics"
+      sla: "95% uptime"
+      certification_required: false
+      
+  access_groups:
+    - name: "executive"
+      description: "C-suite and VPs"
+      access_level: "all_metrics"
+    - name: "analytics"
+      description: "Analytics team"
+      access_level: "all_metrics"
+    - name: "user_acquisition"
+      description: "UA team members"
+      metric_pattern: ["*cpi*", "*ctr*", "*install*", "*channel*", "*roas*"]
+    - name: "product"
+      description: "Product team members"
+      metric_pattern: ["*ltv*", "*monetization*", "*user*", "*revenue_per*"]
+    - name: "finance"
+      description: "Finance team members"
+      metric_pattern: ["*profit*", "*margin*", "*roas*", "*payback*"]
+    - name: "monetization"
+      description: "Monetization team members"
+      metric_pattern: ["*revenue*", "*monetization*", "*payer*", "*arpu*"]
+      
+  alerting_rules:
+    - metric: "company_roas"
+      condition: "< 0.5"
+      severity: "critical"
+      notification_channels: ["slack#alerts-critical", "email:executives@justplay.com"]
+    - metric: "cost_per_install"
+      condition: "> 5"
+      severity: "warning"
+      notification_channels: ["slack#ua-team"]
+    - metric: "monetization_rate"
+      condition: "< 10"
+      severity: "warning"
+      notification_channels: ["slack#product-team"]
+    - metric: "avg_attribution_discrepancy"
+      condition: "> 0.3"
+      severity: "info"
+      notification_channels: ["slack#analytics-team"]

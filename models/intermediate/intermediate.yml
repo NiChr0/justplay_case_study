@@ -86,6 +86,8 @@ models:
         description: "Revenue amount in USD"
         data_tests:
           - not_null
+          - outliers_iqr:
+                multiplier: 1.5
       - name: revenue_source
         description: "Source of revenue (ads, iap, etc)"
         data_tests:
@@ -136,6 +138,8 @@ models:
         description: "Ad spend amount in USD"
         data_tests:
           - not_null
+          - outliers_iqr:
+                multiplier: 1.5
       - name: network_clicks
         description: "Number of clicks reported by the ad network"
       - name: network_impressions

@@ -1,0 +1,197 @@
+# models/marts/cohorts/cohorts.yml
+version: 2
+
+models:
+  - name: ltv_cohorts
+    description: "User-level cohort LTV tracking revenue generated within specific time windows after first install"
+    columns:
+      - name: justplay_user_id
+        description: "Unique user identifier from JustPlay backend"
+        data_tests:
+          - not_null
+          - unique
+      - name: cohort_date
+        description: "Date of user's first install (cohort assignment date)"
+        data_tests:
+          - not_null
+      - name: install_country
+        description: "Country attributed at first install"
+        data_tests:
+          - not_null
+      - name: install_platform
+        description: "OS at first install (ios/android)"
+        data_tests:
+          - accepted_values:
+              values: ['ios', 'android']
+      - name: install_channel
+        description: "Channel that drove first install"
+        data_tests:
+          - not_null
+      - name: install_campaign
+        description: "Campaign that acquired user initially"
+      - name: ltv_day_0
+        description: "Revenue generated on install day (Day 0)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+      - name: ltv_day_7
+        description: "Cumulative revenue generated within 7 days of install (Days 0-7)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+      - name: ltv_day_14
+        description: "Cumulative revenue generated within 14 days of install (Days 0-14)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+      - name: ltv_day_30
+        description: "Cumulative revenue generated within 30 days of install (Days 0-30)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+      - name: last_active_day
+        description: "Days since install when user last generated revenue (0 if never generated revenue)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: active_days_week_1
+        description: "Number of distinct days user generated revenue in first 7 days"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 8
+      - name: is_payer
+        description: "Binary flag: 1 if user ever generated revenue, 0 otherwise"
+
+  - name: cohorts_performance
+    description: "Aggregated cohort performance metrics with ROAS and monetization rates by time windows"
+    columns:
+      - name: cohort_date
+        description: "Install date for the cohort"
+        data_tests:
+          - not_null
+      - name: install_country
+        description: "Country where users were acquired"
+        data_tests:
+          - not_null
+      - name: install_platform
+        description: "Platform (ios/android)"
+        data_tests:
+          - accepted_values:
+              values: ['ios', 'android']
+      - name: install_channel
+        description: "Acquisition channel/ad network"
+        data_tests:
+          - not_null
+      - name: install_campaign
+        description: "Campaign that acquired the cohort"
+      - name: total_users
+        description: "Total number of users in the cohort"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+      - name: paying_users
+        description: "Number of users who generated any revenue"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: avg_ltv_day_0
+        description: "Average revenue per user on install day"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: avg_ltv_day_7
+        description: "Average revenue per user within 7 days of install"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: avg_ltv_day_14
+        description: "Average revenue per user within 14 days of install"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: avg_ltv_day_30
+        description: "Average revenue per user within 30 days of install"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: monetization_rate_day_0
+        description: "Percentage of users who generated revenue on install day"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: monetization_rate_day_7
+        description: "Percentage of users who generated revenue within 7 days"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: monetization_rate_day_14
+        description: "Percentage of users who generated revenue within 14 days"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: monetization_rate_day_30
+        description: "Percentage of users who generated revenue within 30 days"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: total_ad_spend
+        description: "Total advertising spend for this cohort"
+        data_tests:
+          - not_null
+          - outliers_iqr:
+                multiplier: 1.5
+      - name: attributed_installs
+        description: "Number of installs attributed by Adjust (fallback to total_users if no ad spend data)"
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+      - name: roas_day_7
+        description: "Return on Ad Spend for 7-day cohort revenue (total_revenue_day_7 / total_ad_spend)"
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 50
+      - name: roas_day_14
+        description: "Return on Ad Spend for 14-day cohort revenue"
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 50
+      - name: roas_day_30
+        description: "Return on Ad Spend for 30-day cohort revenue"
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 50
+      - name: cpi
+        description: "Cost Per Install (total_ad_spend / attributed_installs)"
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
